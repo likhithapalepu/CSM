@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<header class="bg-primary text-white text-center py-5">
+  <div class="container">
+    <h1 class="display-4">AI-Powered Construction Site Monitoring</h1>
+    <p class="lead">Ensuring safety and operational efficiency through intelligent systems</p>
+    <a href="#features" class="btn btn-light btn-lg mt-3">Discover Features</a>
+  </div>
+</header>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-5">What We Offer</h2>
+    <div class="row g-4">
+
+      <!-- Vehicle Monitoring -->
+      <div class="col-md-6">
+        <div class="card shadow h-100">
+          <img src="{% static 'images/vehicle_monitoring.jpg' %}" class="card-img-top" alt="Vehicle Monitoring">
+          <div class="card-body">
+            <h5 class="card-title">Vehicle Monitoring System</h5>
+            <p class="card-text">
+              Real-time detection and logging of vehicles entering and exiting the site using AI and OCR.
+              License plates are tracked to enhance site security and data management.
+            </p>
+            <a href="{% url 'vehicle_dashboard' %}" class="btn btn-outline-primary">Go to Vehicle Monitoring</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- PPE Detection -->
+      <div class="col-md-6">
+        <div class="card shadow h-100">
+          <img src="{% static 'images/ppe_detection.jpg' %}" class="card-img-top" alt="PPE Detection">
+          <div class="card-body">
+            <h5 class="card-title">PPE Detection System</h5>
+            <p class="card-text">
+              Detects helmets, safety vests, and masks on workers using advanced YOLO-based computer vision.
+              Alerts and reporting help enforce safety compliance in real time.
+            </p>
+            <a href="{% url 'ppe_dashboard' %}" class="btn btn-outline-success">Go to PPE Detection</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}
