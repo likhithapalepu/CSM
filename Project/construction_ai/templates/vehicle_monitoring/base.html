@@ -1,0 +1,17 @@
+<!-- vehicle_monitoring/templates/vehicle_monitoring/base.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Construction AI Dashboard</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background-color: #f4f4f4; }
+        h2 { color: #333; }
+        .button { padding: 10px 20px; background: #28a745; color: white; border: none; cursor: pointer; margin-top: 10px; }
+        .button:hover { background: #218838; }
+    </style>
+</head>
+<body>
+    <h2>Welcome, {{ request.user.username }}!</h2>
+    {% block content %}{% endblock %}
+</body>
+</html>

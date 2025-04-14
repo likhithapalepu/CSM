@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Vehicle Monitoring Dashboard</h2>
+
+    <!-- Video Stream -->
+    <div class="text-center mb-3">
+        <img id="video-stream" src="" width="720" height="480" class="img-fluid border rounded shadow" />
+    </div>
+
+    <!-- Controls -->
+    <div class="d-flex justify-content-center gap-3 mb-4">
+        <button class="btn btn-success" onclick="startWebcam()">Start Webcam</button>
+
+        <!-- Hidden File Input -->
+        <input type="file" id="videoFileInput" accept="video/*" class="d-none" onchange="handleVideoFileUpload(this)">
+        <button class="btn btn-secondary" onclick="triggerFileUpload()">Start File</button>
+
+        <button class="btn btn-danger" onclick="stopStream()">Stop Stream</button>
+        <a href="/media/vehicle_results.csv" class="btn btn-primary" download>Download Results</a>
+    </div>
+
+    <!-- Admin-only Vehicle Data -->
+    {% if user.is_authenticated and user.role == 'admin' %}
+    <div class="card shadow p-3 mb-5">
+        <h5>Detected Vehicles</h5>
+        <div id="loading" class="text-muted">Waiting for vehicle data...</div>
+        <table class="table table-bordered table-striped mt-2 d-none" id="data-table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Vehicle ID</th>
+                    <th>License Plate</th>
+                </tr>
+            </thead>
+            <tbody id="vehicle-data-body"></tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    const videoStream = document.getElementById("video-stream");
+    const vehicleTable = document.getElementById("data-table");
+    const loadingText = document.getElementById("loading");
+    const tbody = document.getElementById("vehicle-data-body");
+    let polling = false;
+
+    function startWebcam() {
+        stopStream(true); // stop any existing stream silently
+        videoStream.src = "{% url 'vehicle_video_feed' %}?source=webcam";
+        polling = true;
+    }
+
+    function triggerFileUpload() {
+        document.getElementById('videoFileInput').click();
+    }
+
+    async function handleVideoFileUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        stopStream(true); // stop any previous stream silently
+
+        const formData = new FormData();
+        formData.append('video_file', file);
+
+        try {
+            const response = await fetch("{% url 'vehicle_upload_file' %}", {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                videoStream.src = "{% url 'vehicle_video_feed' %}?source=file";
+                polling = true;
+            } else {
+                alert('Failed to upload video file');
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+        }
+    }
+
+    async function stopStream(silent = false) {
+        try {
+            await fetch("{% url 'vehicle_stop' %}");
+            videoStream.src = "";
+            polling = false;
+            if (!silent) {
+                alert("Stream stopped.");
+            }
+        } catch (err) {
+            console.error("Failed to stop stream", err);
+        }
+    }
+
+    async function fetchVehicleData() {
+        {% if user.is_authenticated and user.role == 'admin' %}
+        if (!polling) return;
+
+        try {
+            const res = await fetch("{% url 'vehicle_data' %}");
+            const data = await res.json();
+
+            if (data.data.length > 0) {
+                vehicleTable.classList.remove("d-none");
+                loadingText.classList.add("d-none");
+                tbody.innerHTML = "";
+                for (const item of data.data) {
+                    const row = `<tr><td>${item.id}</td><td>${item.text}</td></tr>`;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                }
+            } else {
+                vehicleTable.classList.add("d-none");
+                loadingText.textContent = "No Vehicles Detected Yet.";
+                loadingText.classList.remove("d-none");
+            }
+        } catch (err) {
+            console.error("Error fetching vehicle data:", err);
+        }
+        {% endif %}
+    }
+
+    // Poll every second
+    setInterval(fetchVehicleData, 1000);
+</script>
+{% endblock %}
