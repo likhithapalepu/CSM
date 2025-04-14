@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<style>
+  .login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(to right, #f8f9fa, #e9ecef);
+  }
+
+  .login-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .login-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-login {
+    background-color: #007bff;
+    color: white;
+    width: 100%;
+    border-radius: 25px;
+    font-weight: 500;
+  }
+
+  .btn-login:hover {
+    background-color: #0056b3;
+  }
+
+  .form-footer {
+    text-align: center;
+    margin-top: 1rem;
+  }
+
+  label {
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+  }
+</style>
+
+<div class="container login-wrapper">
+  <div class="login-card">
+    <div class="login-title">Login</div>
+
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="mb-3">
+          <label>{{ field.label }}</label>
+          {{ field|add_class:"form-control" }}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-login">Login</button>
+    </form>
+
+    <div class="form-footer">
+      <p>Don't have an account? <a href="{% url 'signup' %}">Sign up</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
