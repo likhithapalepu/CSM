@@ -1,0 +1,91 @@
+<!-- ppe_detection/templates/ppe_detection/dashboard.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PPE Detection Dashboard</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Optional jQuery (for easy DOM handling) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        video, img {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+        }
+        .btn-group {
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .results {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <div class="container py-5">
+        <h2 class="text-center mb-4">🦺 PPE Detection Dashboard</h2>
+
+        <div class="d-flex justify-content-center mb-4">
+            <div class="btn-group d-flex justify-content-center flex-wrap" role="group">
+                <!-- Start Webcam Form -->
+                <form id="start-webcam-form" method="POST" action="{% url 'ppe_start_stream' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">🎥 Start Stream</button>
+                </form>
+
+                <!-- Start File Upload -->
+                <form id="start-file-form" method="POST" enctype="multipart/form-data" action="{% url 'ppe_start_file' %}">
+                    {% csrf_token %}
+                    <input type="file" name="video_file" accept="video/*" class="form-control d-inline-block mb-2" required>
+                    <button type="submit" class="btn btn-success">📁 Start File</button>
+                </form>
+
+                <!-- Stop Stream -->
+                <form id="stop-form" method="POST" action="{% url 'ppe_stop_stream' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">⛔ Stop Stream</button>
+                </form>
+
+                <!-- Download Results -->
+                <form method="GET" action="{% url 'ppe_download_results' %}">
+                    <button type="submit" class="btn btn-secondary">⬇️ Download Results</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Video Stream -->
+        {% if video_source %}
+        <div class="d-flex justify-content-center mb-4">
+            <img src="{% url 'ppe_video_feed' %}" alt="Video Stream" class="shadow">
+        </div>
+        {% endif %}
+
+        <!-- Detection Results -->
+        {% if results %}
+        <div class="results card shadow mx-auto" style="max-width: 500px;">
+            <div class="card-body">
+                <h4 class="card-title text-center mb-3">📊 Detection Results</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">👤 People Detected: <strong>{{ results.person }}</strong></li>
+                    <li class="list-group-item">⛑️ Wearing Hardhat: <strong>{{ results.hardhat }}</strong></li>
+                    <li class="list-group-item">🦺 Wearing Vest: <strong>{{ results.vest }}</strong></li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
